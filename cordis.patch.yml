@@ -1,0 +1,6 @@
+# dsh-wb-experts bundle patch：把插件的 Host 半侧插进 web profile 的插件名册。
+# Host 半侧提供 /dsh-wb-experts loopback RPC（列专家、上岗/下岗、记常用度）；
+# 浏览器半侧由 package.json 的 dsh.client 声明发现，渲染「专家」按钮与选择面板。
+- insert:
+    - id: dsh-wb-experts
+      name: 'dsh-wb-experts'

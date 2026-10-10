@@ -1,0 +1,53 @@
+{
+  "name": "dsh-wb-experts",
+  "version": "0.1.7",
+  "description": "WorkBuddy 专家选择器：输入框工具行左侧一个「专家」按钮，点开是带搜索框、说明与常用排序的 448 位专家面板；选中即自动上岗（junction 到 dsh skill 扫描根）并把 /<skill> 写进输入框，走 dsh 原生的 skill 用户调用通道。",
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "workbuddy",
+    "experts",
+    "skill",
+    "picker"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moxiuren/dsh-wb-experts.git"
+  },
+  "homepage": "https://github.com/moxiuren/dsh-wb-experts#readme",
+  "bugs": {
+    "url": "https://github.com/moxiuren/dsh-wb-experts/issues"
+  },
+  "private": true,
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./client.js": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/*.js",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "react"
+      ],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
+  "license": "MIT"
+}

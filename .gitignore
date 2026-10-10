@@ -1,0 +1,14 @@
+node_modules/
+*.log
+
+# 本机开发/记账脚本：内含本机绝对路径与 Vault 结构，不进公开仓库
+_tools/
+
+# 个人交接文档 / 本机版 README：含本机路径与内部会话记录，不进公开仓库
+HANDOFF.md
+README.local.md
+
+# 运行时产物
+~$*
+.DS_Store
+Thumbs.db

@@ -114,6 +114,10 @@ if (v) {
   console.log('   stage  :', v.stage)
   console.log('   第一条 :', JSON.stringify(v.experts[0]).slice(0, 160))
   check('专家数 = 448', v.experts.length === 448, v.experts.length)
+  // list 顺带回 Auto Mode 载体的安装状态（面板据此决定「不确定用哪个？」那一行是否可用）
+  check('list 带 finder 状态', !!v.finder, JSON.stringify(v.finder))
+  check('finder 状态含 path', !!(v.finder && typeof v.finder.path === 'string'), v.finder && v.finder.path)
+  console.log('   finder :', JSON.stringify(v.finder))
 }
 
 console.log('\n3) 安全防线与失败信封')

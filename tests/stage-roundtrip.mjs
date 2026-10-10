@@ -4,22 +4,19 @@
  * 为什么需要它：面板的「取消上岗」按钮走的是 Host 的 `unstage` 端点，而离线自测
  * 只覆盖了「拒绝非法名 / 拒绝删用户自己的 skill」两条拒绝路径，**成功路径从没跑过**。
  * 小莫马上要用这个按钮，所以这里把「上岗 -> 确认挂上 -> 下岗 -> 确认摘掉」整条走一遍，
- * 并断言结束后 `~/.dsh/skills` 的专家上岗集合与开跑前**完全一致**。
+ * 并断言结束后扫描根的专家上岗集合与开跑前**完全一致**。
  *
  * 跑：node tests/stage-roundtrip.mjs
  */
 import { existsSync } from 'node:fs'
-import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { dispatch } from '../lib/index.js'
+import { dispatch, STAGE } from '../lib/index.js'
 
 let failed = 0
 function check(label, cond, extra) {
   console.log(`${cond ? '  [OK]  ' : '  [FAIL]'} ${label}${extra === undefined ? '' : ' -> ' + extra}`)
   if (!cond) failed += 1
 }
-
-const STAGE = join(homedir(), '.dsh', 'skills')
 
 const before = await dispatch('list', {})
 if (!before.ok) {

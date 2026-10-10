@@ -1,6 +1,6 @@
 {
   "name": "dsh-wb-experts",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "WorkBuddy 专家选择器：输入框工具行左侧一个「专家」按钮，点开是带搜索框、说明与常用排序的 448 位专家面板；选中即自动上岗（junction 到 dsh skill 扫描根）并把 /<skill> 写进输入框，走 dsh 原生的 skill 用户调用通道。",
   "keywords": [
     "deepseek",
@@ -23,6 +23,9 @@
   "private": true,
   "type": "module",
   "main": "lib/index.js",
+  "bin": {
+    "wbx": "bin/wbx.mjs"
+  },
   "exports": {
     ".": "./lib/index.js",
     "./client": "./lib/client.js",
@@ -30,8 +33,13 @@
     "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
+  "scripts": {
+    "test": "node tests/host-selftest.mjs && node tests/client-logic-test.mjs && node tests/finder-install.mjs && node tests/stage-roundtrip.mjs"
+  },
   "files": [
     "lib/*.js",
+    "bin/*.mjs",
+    "skills/*/SKILL.md",
     "cordis.patch.yml",
     "README.md"
   ],

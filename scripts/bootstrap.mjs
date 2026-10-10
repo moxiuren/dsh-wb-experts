@@ -64,16 +64,36 @@ function run(cmd, args, cwd) {
   }
 }
 
-/** Windows 上 pnpm 是 pnpm.cmd / pnpm.ps1，直接 execFile('pnpm') 会 ENOENT。 */
+/**
+ * 跑 pnpm。
+ *
+ * Windows 上 pnpm 是 `pnpm.cmd` / `pnpm.ps1` 这种 shim，**不能直接 execFile** ——
+ * Node 18.20 / 20.12 起（CVE-2024-27980 的修复）spawn 一个 `.cmd` 而不带 shell 会直接抛
+ * `spawnSync pnpm.cmd EINVAL`。实测就是这么炸的，所以 Windows 一律走 `cmd /c`。
+ */
 function runPnpm(args, cwd) {
-  const cands = process.platform === 'win32' ? ['pnpm.cmd', 'pnpm', 'corepack'] : ['pnpm', 'corepack']
-  for (const c of cands) {
-    const real = c === 'corepack' ? ['pnpm', ...args] : args
-    const r = run(c, real, cwd)
-    if (r.ok) return { ok: true, out: r.out, via: c }
-    if (r.out && !/ENOENT|not found|不是内部或外部命令/i.test(r.out)) return { ok: false, out: r.out, via: c }
+  const attempts =
+    process.platform === 'win32'
+      ? [
+          { cmd: 'cmd', argv: ['/c', 'pnpm', ...args], via: 'cmd /c pnpm' },
+          { cmd: 'cmd', argv: ['/c', 'corepack', 'pnpm', ...args], via: 'cmd /c corepack pnpm' },
+        ]
+      : [
+          { cmd: 'pnpm', argv: args, via: 'pnpm' },
+          { cmd: 'corepack', argv: ['pnpm', ...args], via: 'corepack pnpm' },
+        ]
+
+  let last = ''
+  for (const a of attempts) {
+    const r = run(a.cmd, a.argv, cwd)
+    if (r.ok) return { ok: true, out: r.out, via: a.via }
+    last = r.out
+    // 只在「命令不存在」时换下一个候选；真的装失败了要立刻返回，别掩盖错误
+    if (!/ENOENT|EINVAL|not recognized|不是内部或外部命令|is not recognized/i.test(r.out)) {
+      return { ok: false, out: r.out, via: a.via }
+    }
   }
-  return { ok: false, out: 'pnpm 未找到', via: null }
+  return { ok: false, out: last || 'pnpm 未找到', via: null }
 }
 
 const steps = []
@@ -180,7 +200,9 @@ step('挂载插件到 profile', () => {
 
   if (DRY) return `将写入 ${changed.join(' + ')}（并备份原文件）`
 
-  const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 15)
+  // 时间戳到秒就够：toISOString 是 `2026-10-10T10:49:11.123Z`，
+  // 去掉分隔符后前 14 位正好是 `YYYYMMDDHHmmss`（多切一位会带上毫秒的小数点）
+  const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)
   copyFileSync(pkgPath, `${pkgPath}.bak-bootstrap-${stamp}`)
   writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf-8')
   return `已写入 ${changed.join(' + ')}（备份：package.json.bak-bootstrap-${stamp}）`
@@ -194,7 +216,10 @@ step('安装依赖', () => {
   if (DRY) return '将运行 pnpm install'
   const r = runPnpm(['install'], profileDir)
   if (!r.ok) {
-    throw new Error(`pnpm install 失败（via ${r.via}）：${r.out}\n请手动在该 profile 目录里跑一次 pnpm install`)
+    throw new Error(
+      `pnpm install 失败（via ${r.via}）：${r.out}\n` +
+        `请手动执行：cd "${profileDir}" && pnpm install`,
+    )
   }
   return `pnpm install 完成（via ${r.via}）`
 })

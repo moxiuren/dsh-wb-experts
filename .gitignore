@@ -4,9 +4,9 @@ node_modules/
 # 本机开发/记账脚本：内含本机绝对路径与 Vault 结构，不进公开仓库
 _tools/
 
-# 个人交接文档 / 本机版 README：含本机路径与内部会话记录，不进公开仓库
+# 个人交接文档：含本机路径与内部会话记录，不进公开仓库
+# （本机版的 README 备份已挪到仓库之外：npm 会无条件把 README* 打进包里，ignore 挡不住）
 HANDOFF.md
-README.local.md
 
 # 运行时产物
 ~$*

@@ -1,0 +1,18 @@
+# npm 打包时额外排除的东西。
+# 注意：package.json 的 `files` 白名单**不会**自动排除未列出的文件 ——
+# README.local.md 这种本机私用文档照样会被打进去，必须在这里显式挡掉。
+
+# 本机私用文档（含本机绝对路径与内部会话记录）
+README.local.md
+HANDOFF.md
+
+# 本机开发/记账脚本
+_tools/
+
+# 测试不在发布产物里（源码仓库里保留，供 clone 后自查）
+tests/
+
+# 杂项
+.gitignore
+.gitattributes
+*.log

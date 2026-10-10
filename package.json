@@ -41,7 +41,8 @@
     "bin/*.mjs",
     "skills/*/SKILL.md",
     "cordis.patch.yml",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "dsh": {
     "bundle": {

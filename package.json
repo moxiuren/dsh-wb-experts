@@ -39,6 +39,7 @@
   "files": [
     "lib/*.js",
     "bin/*.mjs",
+    "scripts/*.mjs",
     "skills/*/SKILL.md",
     "cordis.patch.yml",
     "README.md",

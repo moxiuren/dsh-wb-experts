@@ -114,9 +114,35 @@ ctx.connection.fetch.register({
 
 ## 安装
 
-前置：一个可用的 DSH 安装，且已有一份专家库落在 `<dsh home>/wb-experts/`（`<name>/SKILL.md` + `_index.json`）。本仓库**不含**专家档案数据（见下方「专家库从哪来」）。
+完整的「专家模式」= **本插件** + **一份专家库**（两个仓库，因为库有 16 MB 数据，不适合塞进插件包）。
 
-1. 把插件放到任意目录，然后在 DSH profile 的 `package.json` 里**两处**都加：
+### 一条命令装完（推荐）
+
+```bash
+git clone https://github.com/moxiuren/dsh-wb-experts.git
+cd dsh-wb-experts
+node scripts/bootstrap.mjs
+```
+
+`bootstrap.mjs` 会把剩下的事做完：拉取专家库 → 装到 `<dsh home>/wb-experts/` →
+把本插件写进 dsh profile 的 `package.json`（dependencies + bundles 两处，改前自动备份）→
+`pnpm install` → 打印重启提示。**装完重启 DSH 即生效。**
+
+常用参数：
+
+```bash
+node scripts/bootstrap.mjs --dry-run          # 只报告将要做什么，不改任何文件
+node scripts/bootstrap.mjs --profile web      # 指定 profile（默认自动探测）
+node scripts/bootstrap.mjs --data-dir <路径>  # 用已有的专家库检出，不再 clone
+node scripts/bootstrap.mjs --skip-library     # 只装插件，库我自己准备
+```
+
+### 手动安装
+
+1. **准备专家库**（本仓库不含档案数据，见下方「专家库从哪来」）：
+   [moxiuren/dsh-experts-library](https://github.com/moxiuren/dsh-experts-library) 提供 448 位专家，
+   clone 后跑它自己的 `node tools/install.mjs` 即可落到 `<dsh home>/wb-experts/`。
+2. 在 DSH profile 的 `package.json` 里**两处**都加：
 
 ```jsonc
 {
@@ -133,9 +159,8 @@ ctx.connection.fetch.register({
 }
 ```
 
-2. 安装依赖：`pnpm install`
-3. **重启 DSH**（bundle 在启动时挂载；Host 半侧的 RPC 通道与 finder skill 的安装都在启动时做），然后浏览器 `Ctrl+Shift+R`
-4. 建一次搜索索引：`node bin/wbx.mjs index`（约 6 MB，一次性）
+3. 安装依赖：`pnpm install`
+4. **重启 DSH**（bundle 在启动时挂载；Host 半侧的 RPC 通道与 finder skill 的安装都在启动时做），然后浏览器 `Ctrl+Shift+R`
 
 > 只加 `dependencies` 不会加载插件，**必须**同时加进 `dsh.profile.bundles`。
 
@@ -143,14 +168,16 @@ ctx.connection.fetch.register({
 
 ### 专家库从哪来
 
-本仓库只发布**插件本体**，不包含 WorkBuddy 的专家档案。你需要自己准备一份 `<dsh home>/wb-experts/`：
+**直接用现成的**：[moxiuren/dsh-experts-library](https://github.com/moxiuren/dsh-experts-library) —— 448 位专家、15 个分类，已按 dsh skill 规范整理好，clone 后 `node tools/install.mjs` 一键落地。
+
+**或者自备一份** `<dsh home>/wb-experts/`，结构如下：
 
 - 目录结构：每个专家一个 `<name>/SKILL.md`（YAML frontmatter 必填 `name` + `description`），可选 `<name>/references/`
 - 索引：`_index.json`，数组，每条至少含 `dsh_name`（kebab-case，与目录同名）；推荐再带 `zh` / `en` / `profession` / `category` / `category_zh` / `expertType` / `subskills`（面板的分类栏、中文名、排序都依赖这些字段）
 - 建好库后跑 `node bin/wbx.mjs index` 生成全文搜索语料
 - 体检：`node bin/wbx.mjs doctor`
 
-任何来源的专家/skill 只要符合上面的结构都能用，不限于 WorkBuddy。
+任何来源的专家/skill 只要符合上面的结构都能用，不限于某个平台或市场。
 
 ## 排障
 
